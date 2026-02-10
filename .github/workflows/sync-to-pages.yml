@@ -1,0 +1,29 @@
+name: Sync Profile README to Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Profile Repo
+        uses: actions/checkout@v4
+
+      - name: Push README to Pages Repo
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.PAGES_REPO_TOKEN }}
+        with:
+          source-directory: "."
+          # List the files you want to copy specifically
+          # This avoids overwriting your entire Pages repo
+          source-file: "README.md"
+          destination-github-username: "Mpinyaz"
+          destination-repository-name: "mpinyaz.github.io"
+          user-email: "actions@github.com"
+          target-branch: "main"
+          # Where you want the bio to live on your site
+          target-directory: "."
