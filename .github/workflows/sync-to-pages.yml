@@ -6,26 +6,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  sync:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Profile Repo
         uses: actions/checkout@v4
 
       - name: Prepare file for sync
+        # We rename it to profile-bio.md to avoid overwriting your
+        # main repo's README.md by accident.
         run: |
-          mkdir -p sync_folder
-          cp README.md sync_folder/README.md
+          mkdir -p public
+          cp README.md public/README.md
 
-      - name: Push to Pages Repo
-        uses: cpina/github-action-push-to-another-repository@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.PAGES_REPO_TOKEN }}
+      - name: Deploy to External Pages Repo
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          source-directory: "sync_folder"
-          source-file: "README.md"
-          destination-github-username: "Mpinyaz"
-          destination-repository-name: "mpinyaz.github.io"
-          user-email: "actions@github.com"
-          target-branch: "main"
-          target-directory: "."
+          # Use the PAT secret you created earlier
+          personal_token: ${{ secrets.PAGES_REPO_TOKEN }}
+          # Point to your website repository
+          external_repository: Mpinyaz/mpinyaz.github.io
+          publish_dir: ./public
+          # CRITICAL: This prevents the action from deleting your other files
+          keep_files: true
+          publish_branch: main
+          # This puts the file in the root of the destination repo
+          destination_dir: .
